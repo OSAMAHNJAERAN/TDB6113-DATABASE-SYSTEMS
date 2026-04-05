@@ -19,7 +19,7 @@ The **Online Course Enrollment System** is a comprehensive database design proje
 
 ## 🖨️ Screenshots
 
-![ERD Diagram](assets/erd_diagram.png)
+![ERD Diagram](media/erd_schema.png)
 *Figure 1: Entity-Relationship Diagram (ERD) detailing the core architectural schema.*
 
 ## 🗂️ Project Structure
