@@ -1,4 +1,6 @@
-# 🎓 Online Course Enrollment System
+﻿# 🎓 Online Course Enrollment System
+
+### 📘 Course Project: TDB6113-DATABASE SYSTEMS
 
 [![Database: SQL](https://img.shields.io/badge/Database-SQL-4479A1?style=for-the-badge&logo=mysql)](https://mysql.com/)
 [![Course: Semester 3](https://img.shields.io/badge/Course-Semester_3-blueviolet?style=for-the-badge)]()
