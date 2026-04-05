@@ -1,0 +1,474 @@
+
+-- Create a table to store student information
+CREATE TABLE STUDENT (
+    STUDENT_ID INT PRIMARY KEY,              -- Unique identifier for each student (Primary Key)
+    STUDENT_FNAME NVARCHAR(50),              -- Student's first name
+    STUDENT_LNAME NVARCHAR(50),              -- Student's last name
+    STUDENT_EMAIL NVARCHAR(100),             -- Student's email address
+    STUDENT_PHONE NVARCHAR(15),              -- Student's phone number
+    STUDENT_DOB DATE,                        -- Student's date of birth
+    STUDENT_GENDER CHAR(1),                  -- Student's gender (e.g., 'M' for Male, 'F' for Female)
+    STUDENT_ADDRESS NVARCHAR(255)            -- Student's residential address
+);
+
+-- Create a table to store instructor information
+CREATE TABLE INSTRUCTOR (
+    INSTR_ID INT PRIMARY KEY,                -- Unique identifier for each instructor (Primary Key)
+    INSTR_NAME NVARCHAR(100),                -- Instructor's full name
+    INSTR_EMAIL NVARCHAR(100),               -- Instructor's email address
+    INSTR_PHONE NVARCHAR(15),                -- Instructor's phone number
+    EXPERTISE_LEVEL NVARCHAR(50)             -- Instructor's level of expertise (e.g., Beginner, Intermediate, Expert)
+);
+
+-- Create a table to store course information
+CREATE TABLE COURSE (
+    CRS_CODE INT PRIMARY KEY,                -- Unique identifier for each course (Primary Key)
+    CRS_NAME NVARCHAR(100),                  -- Name of the course
+    CRS_DESCRIPTION NVARCHAR(255),           -- Description of the course
+    CRS_TIME NVARCHAR(50),                   -- Scheduled time for the course (e.g., "10:00 AM - 12:00 PM")
+    CRS_START_DATE DATE,                     -- Start date of the course
+    CRS_END_DATE DATE,                       -- End date of the course
+    LECTURE_LINK NVARCHAR(255),              -- Link to access course lectures (e.g., Zoom or Google Meet link)
+    CRS_FEES FLOAT,                          -- Course fees
+    INSTR_ID INT                             -- Foreign Key referencing the instructor teaching the course
+);
+
+-- Create a table to store student enrollment information
+CREATE TABLE ENROLLMENT (
+    STUDENT_ID INT,                          -- Foreign Key referencing the student enrolled
+    CRS_CODE INT,                            -- Foreign Key referencing the course enrolled in
+    ENROL_DATE DATE,                         -- Date of enrollment
+    COMPLETION_STATE NVARCHAR(50),           -- Enrollment completion status (e.g., "In Progress", "Completed")
+    GRADE NVARCHAR(2),                       -- Grade achieved by the student in the course
+    PAYMENT NVARCHAR(50),                    -- Payment status (e.g., "Paid", "Pending")
+    PRIMARY KEY (STUDENT_ID, CRS_CODE)       -- Composite Primary Key (STUDENT_ID + CRS_CODE)
+);
+
+-- Create a table to store assignment details for courses
+CREATE TABLE ASSIGNMENT (
+    ASSIGN_ID INT PRIMARY KEY,               -- Unique identifier for each assignment (Primary Key)
+    ASSIGN_TITLE NVARCHAR(100),              -- Title of the assignment
+    ASSIGN_DESCRIPTION NVARCHAR(255),        -- Description of the assignment
+    ASSIGN_DUE_DATE DATE,                    -- Due date for the assignment
+    CRS_CODE INT                             -- Foreign Key referencing the course the assignment belongs to
+);
+
+-- Create a table to store student submissions for assignments
+CREATE TABLE SUBMISSION (
+    STUDENT_ID INT,                          -- Foreign Key referencing the student who submitted the assignment
+    ASSIGNMENT_ID INT,                       -- Foreign Key referencing the assignment submitted
+    SUBM_DATE DATE,                          -- Date of submission
+    SUBM_GRADE NVARCHAR(2),                  -- Grade awarded for the submission
+    PRIMARY KEY (STUDENT_ID, ASSIGNMENT_ID)  -- Composite Primary Key (STUDENT_ID + ASSIGNMENT_ID)
+);
+
+-- Create a table to store learning materials for courses
+CREATE TABLE LEARNING_MATERIAL (
+    MATER_ID INT PRIMARY KEY,                -- Unique identifier for each learning material (Primary Key)
+    MATER_TITLE NVARCHAR(100),               -- Title of the learning material
+    MATER_TYPE NVARCHAR(50),                 -- Type of material (e.g., "PDF", "Video", "Slide")
+    MATER_UPLOAD_DATE DATE,                  -- Date the material was uploaded
+    CRS_CODE INT,                            -- Foreign Key referencing the course the material belongs to
+    ACCESS_PERMISSION NVARCHAR(50)           -- Access permissions for the material (e.g., "Public", "Private")
+);
+
+-- Add a foreign key constraint to the COURSE table linking INSTR_ID to the INSTRUCTOR table
+ALTER TABLE COURSE 
+ADD CONSTRAINT FK_COURSE_INSTRUCTOR 
+FOREIGN KEY (INSTR_ID) REFERENCES INSTRUCTOR(INSTR_ID);
+-- Ensures that the INSTR_ID in the COURSE table must exist in the INSTRUCTOR table
+
+-- Add a foreign key constraint to the ENROLLMENT table linking STUDENT_ID to the STUDENT table
+ALTER TABLE ENROLLMENT 
+ADD CONSTRAINT FK_ENROLLMENT_STUDENT 
+FOREIGN KEY (STUDENT_ID) REFERENCES STUDENT(STUDENT_ID);
+-- Ensures that the STUDENT_ID in the ENROLLMENT table must exist in the STUDENT 
+
+-- Add a foreign key constraint to the ENROLLMENT table linking CRS_CODE to the COURSE table
+ALTER TABLE ENROLLMENT 
+ADD CONSTRAINT FK_ENROLLMENT_COURSE 
+FOREIGN KEY (CRS_CODE) REFERENCES COURSE(CRS_CODE);
+-- Ensures that the CRS_CODE in the ENROLLMENT table must exist in the COURSE table
+
+-- Add a foreign key constraint to the ASSIGNMENT table linking CRS_CODE to the COURSE table
+ALTER TABLE ASSIGNMENT 
+ADD CONSTRAINT FK_ASSIGNMENT_COURSE 
+FOREIGN KEY (CRS_CODE) REFERENCES COURSE(CRS_CODE);
+-- Ensures that the CRS_CODE in the ASSIGNMENT table must exist in the COURSE table
+
+-- Add a foreign key constraint to the SUBMISSION table linking STUDENT_ID to the STUDENT table
+ALTER TABLE SUBMISSION 
+ADD CONSTRAINT FK_SUBMISSION_STUDENT 
+FOREIGN KEY (STUDENT_ID) REFERENCES STUDENT(STUDENT_ID);
+-- Ensures that the STUDENT_ID in the SUBMISSION table must exist in the STUDENT table
+
+-- Add a foreign key constraint to the SUBMISSION table linking ASSIGNMENT_ID to the ASSIGNMENT table
+ALTER TABLE SUBMISSION 
+ADD CONSTRAINT FK_SUBMISSION_ASSIGNMENT 
+FOREIGN KEY (ASSIGNMENT_ID) REFERENCES ASSIGNMENT(ASSIGN_ID);
+-- Ensures that the ASSIGNMENT_ID in the SUBMISSION table must exist in the ASSIGNMENT table
+
+-- Add a foreign key constraint to the LEARNING_MATERIAL table linking CRS_CODE to the COURSE table
+ALTER TABLE LEARNING_MATERIAL 
+ADD CONSTRAINT FK_MATERIAL_COURSE 
+FOREIGN KEY (CRS_CODE) REFERENCES COURSE(CRS_CODE);
+-- Ensures that the CRS_CODE in the LEARNING_MATERIAL table must exist in the COURSE table
+
+-- Insert student records into the STUDENT table
+INSERT INTO STUDENT VALUES
+(1, 'Mohammed', 'Ali', 'mohammed1@mmu.edu.my', '0501234567', '2002-05-15', 'M', 'Riyadh'),       -- Student 1
+(2, 'Ahmed', 'Saleh', 'ahmed2@mmu.edu.my', '0502345678', '2001-03-10', 'M', 'Jeddah'),          -- Student 2
+(3, 'Fatima', 'Sharif', 'fatima3@mmu.edu.my', '0503456789', '2003-07-20', 'F', 'Mecca'),        -- Student 3
+(4, 'Khalid', 'Saeed', 'khalid4@mmu.edu.my', '0504567890', '2000-01-01', 'M', 'Dammam'),        -- Student 4
+(5, 'Noor', 'Hashimi', 'noor5@mmu.edu.my', '0505678901', '2002-12-31', 'F', 'Medina'),          -- Student 5
+(6, 'Abdullah', 'Ghamdi', 'abdullah6@mmu.edu.my', '0506789012', '1999-09-15', 'M', 'Riyadh'),   -- Student 6
+(7, 'Hind', 'Otaibi', 'hind7@mmu.edu.my', '0507890123', '2004-11-25', 'F', 'Jeddah'),           -- Student 7
+(8, 'Badr', 'Dosari', 'badr8@mmu.edu.my', '0508901234', '2001-08-14', 'M', 'Mecca'),            -- Student 8
+(9, 'Layla', 'Shahrani', 'layla9@mmu.edu.my', '0509012345', '2003-05-05', 'F', 'Dammam'),       -- Student 9
+(10, 'Saud', 'Zaid', 'saud10@mmu.edu.my', '0511234567', '2000-06-30', 'M', 'Riyadh'),           -- Student 10
+(11, 'Mona', 'Khalid', 'mona11@mmu.edu.my', '0512345678', '2002-03-22', 'F', 'Jeddah'),         -- Student 11
+(12, 'Abdulrahman', 'Tamimi', 'abrahman12@mmu.edu.my', '0513456789', '2001-02-28', 'M', 'Mecca'), -- Student 12
+(13, 'Noura', 'Mutairi', 'nora13@mmu.edu.my', '0514567890', '1999-07-17', 'F', 'Dammam'),       -- Student 13
+(14, 'Salem', 'Qahtani', 'salem14@mmu.edu.my', '0515678901', '2004-10-13', 'M', 'Medina'),      -- Student 14
+(15, 'Jamila', 'Anzi', 'jamila15@mmu.edu.my', '0516789012', '2003-01-05', 'F', 'Jeddah');       -- Student 15
+
+-- Insert instructor records into the INSTRUCTOR table
+INSERT INTO INSTRUCTOR VALUES
+(1, 'Dr. Hassan Al-Sayed', 'hassan@mmu.edu.my', '0502233445', 'Advanced Mathematics'),          -- Instructor 1
+(2, 'Prof. Layla Mahmoud', 'layla@mmu.edu.my', '0503344556', 'Computer Science'),               -- Instructor 2
+(3, 'Dr. Faisal Al-Harbi', 'faisal@mmu.edu.my', '0504455667', 'Physics'),                       -- Instructor 3
+(4, 'Dr. Mona Al-Qassem', 'mona@mmu.edu.my', '0505566778', 'Economics');
+
+-- Insert course records into the COURSE table
+INSERT INTO COURSE VALUES
+(101, 'Calculus I', 'Introduction to differential and integral calculus.', '08:00 AM - 10:00 AM', '2025-01-01', '2025-06-01', 'http://lecture1.MMU.edu.my', 1500.00, 1), -- Course 101
+(102, 'Introduction to Programming', 'Basics of programming using Python.', '10:30 AM - 12:30 PM', '2025-01-01', '2025-06-01', 'http://lecture2.MMU.edu.my', 1800.00, 2), -- Course 102
+(103, 'Physics I', 'Fundamentals of classical mechanics.', '01:00 PM - 03:00 PM', '2025-01-01', '2025-06-01', 'http://lecture3.MMU.edu.my', 1700.00, 3), -- Course 103
+(104, 'Macroeconomics', 'Overview of macroeconomic principles.', '03:30 PM - 05:30 PM', '2025-01-01', '2025-06-01', 'http://lecture4.MMU.edu.my', 1600.00, 4), -- Course 104
+(105, 'Data Structures', 'Introduction to data structures in programming.', '06:00 PM - 08:00 PM', '2025-01-01', '2025-06-01', 'http://lecture5.MMU.edu.my', 2000.00, 2); -- Course 105
+
+-- Insert enrollment records into the ENROLLMENT table
+INSERT INTO ENROLLMENT VALUES
+(1, 101, '2025-01-10', 'In Progress', NULL, 'Paid'),  -- Student 1 enrolled in Course 101
+(2, 102, '2025-01-12', 'In Progress', NULL, 'Paid'),  -- Student 2 enrolled in Course 102
+(3, 103, '2025-01-15', 'In Progress', NULL, 'Paid'),  -- Student 3 enrolled in Course 103
+(4, 104, '2025-01-20', 'In Progress', NULL, 'Paid'),  -- Student 4 enrolled in Course 104
+(5, 105, '2025-01-25', 'In Progress', NULL, 'Paid');  -- Student 5 enrolled in Course 105
+
+-- Insert assignment records into the ASSIGNMENT table
+INSERT INTO ASSIGNMENT VALUES
+(1, 'Assignment 1', 'Basic Calculus Problems', '2025-02-01', 101),  -- Assignment for Course 101
+(2, 'Assignment 2', 'Python Programming Basics', '2025-02-05', 102), -- Assignment for Course 102
+(3, 'Assignment 3', 'Classical Mechanics Exercise', '2025-02-10', 103), -- Assignment for Course 103
+(4, 'Assignment 4', 'Economic Principles Case Study', '2025-02-15', 104), -- Assignment for Course 104
+(5, 'Assignment 5', 'Linked List Implementation', '2025-02-20', 105); -- Assignment for Course 105
+
+-- Insert learning material records into the LEARNING_MATERIAL table
+INSERT INTO LEARNING_MATERIAL VALUES
+(1, 'Calculus Lecture Notes', 'PDF', '2025-01-05', 101, 'Public'),      -- Learning material for Course 101
+(2, 'Python Code Examples', 'ZIP', '2025-01-10', 102, 'Restricted'),    -- Learning material for Course 102
+(3, 'Mechanics Problem Sets', 'PDF', '2025-01-15', 103, 'Public'),      -- Learning material for Course 103
+(4, 'Economics Charts', 'PPT', '2025-01-20', 104, 'Public'),            -- Learning material for Course 104
+(5, 'Data Structures Diagrams', 'PDF', '2025-01-25', 105, 'Restricted'); -- Learning material for Course 105
+
+-- Change the delimiter to $$ to allow the creation of the trigger
+DELIMITER $$
+
+-- Create a trigger named `trg_prevent_duplicate_enrollment`
+-- This trigger fires BEFORE an INSERT operation on the ENROLLMENT table
+CREATE TRIGGER trg_prevent_duplicate_enrollment
+BEFORE INSERT ON ENROLLMENT
+FOR EACH ROW
+BEGIN
+    -- Declare a variable to store the count of existing enrollments for the student and course
+    DECLARE count_enrollments INT;
+
+    -- Check if the student is already enrolled in the course
+    SELECT COUNT(*) INTO count_enrollments
+    FROM ENROLLMENT
+    WHERE STUDENT_ID = NEW.STUDENT_ID AND CRS_CODE = NEW.CRS_CODE;
+
+    -- If the student is already enrolled, raise an error
+    IF count_enrollments > 0 THEN
+        SIGNAL SQLSTATE '45000' -- SQLSTATE for a custom error
+        SET MESSAGE_TEXT = 'Duplicate enrollment detected.'; -- Error message
+    END IF;
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the trigger
+DELIMITER $$
+
+-- Create a trigger named `trg_prevent_future_enrollment`
+-- This trigger fires BEFORE an INSERT operation on the ENROLLMENT table
+CREATE TRIGGER trg_prevent_future_enrollment
+BEFORE INSERT ON ENROLLMENT
+FOR EACH ROW
+BEGIN
+    -- Check if the ENROL_DATE in the new record is in the future
+    IF NEW.ENROL_DATE > CURDATE() THEN
+        -- Raise an error if the enrollment date is in the future
+        SIGNAL SQLSTATE '45000' -- SQLSTATE for a custom error
+        SET MESSAGE_TEXT = 'Enrollment date cannot be in the future.'; -- Error message
+    END IF;
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the trigger
+DELIMITER $$
+
+-- Create a trigger named `trg_prevent_late_submission`
+-- This trigger fires BEFORE an INSERT operation on the SUBMISSION table
+CREATE TRIGGER trg_prevent_late_submission
+BEFORE INSERT ON SUBMISSION
+FOR EACH ROW
+BEGIN
+    -- Declare a variable to store the due date of the assignment
+    DECLARE due_date DATE;
+
+    -- Retrieve the due date for the assignment being submitted
+    SELECT ASSIGN_DUE_DATE INTO due_date
+    FROM ASSIGNMENT
+    WHERE ASSIGN_ID = NEW.ASSIGNMENT_ID;
+
+    -- Check if the submission date is after the due date
+    IF NEW.SUBM_DATE > due_date THEN
+        -- Raise an error if the submission is late
+        SIGNAL SQLSTATE '45000' -- SQLSTATE for a custom error
+        SET MESSAGE_TEXT = 'Assignment submission is past the due date.'; -- Error message
+    END IF;
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the function
+DELIMITER $$
+
+-- Create a function named `avg_grade_course`
+-- This function calculates the average grade for a given course code
+CREATE FUNCTION avg_grade_course(course_code INT) RETURNS FLOAT
+BEGIN
+    -- Declare a variable to store the calculated average grade
+    DECLARE avg_grade FLOAT;
+
+    -- Calculate the average grade for the course
+    SELECT AVG(
+        CASE
+            WHEN SUBM_GRADE = 'A' THEN 4.0 -- Map 'A' to 4.0
+            WHEN SUBM_GRADE = 'B' THEN 3.0 -- Map 'B' to 3.0
+            WHEN SUBM_GRADE = 'C' THEN 2.0 -- Map 'C' to 2.0
+            WHEN SUBM_GRADE = 'D' THEN 1.0 -- Map 'D' to 1.0
+            WHEN SUBM_GRADE = 'F' THEN 0.0 -- Map 'F' to 0.0
+            ELSE NULL -- Ignore invalid or NULL grades
+        END
+    ) INTO avg_grade
+    FROM SUBMISSION S
+    JOIN ASSIGNMENT A ON S.ASSIGNMENT_ID = A.ASSIGN_ID
+    WHERE A.CRS_CODE = course_code; -- Filter by the provided course code
+
+    -- Return the average grade, or 0 if no grades are found (to handle NULL cases)
+    RETURN IFNULL(avg_grade, 0);
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+DELIMITER $$
+
+-- Create a function named `total_payments` that takes a `student_id` as input
+-- and returns the total amount of fees paid by the student as a FLOAT value.
+CREATE FUNCTION total_payments(student_id INT) RETURNS FLOAT
+BEGIN
+    -- Declare a variable `total` to store the sum of the course fees.
+    DECLARE total FLOAT;
+
+    -- Calculate the total fees paid by the student by summing up the `CRS_FEES`
+    -- from the `COURSE` table for all courses where the student has made a payment.
+    -- The `ENROLLMENT` table is joined with the `COURSE` table using the `CRS_CODE`
+    -- to get the course fees. The condition `E.PAYMENT = 'Paid'` ensures that only
+    -- paid enrollments are considered.
+    SELECT SUM(C.CRS_FEES) INTO total
+    FROM ENROLLMENT E
+    JOIN COURSE C ON E.CRS_CODE = C.CRS_CODE
+    WHERE E.STUDENT_ID = student_id AND E.PAYMENT = 'Paid';
+
+    -- Return the total fees paid by the student. If no payments were found,
+    -- return 0 using the `IFNULL` function to handle cases where `total` is NULL.
+    RETURN IFNULL(total, 0);
+END$$
+
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the function
+DELIMITER $$
+
+-- Create a function named `count_students_in_course`
+-- This function calculates the total number of students enrolled in a specific course
+CREATE FUNCTION count_students_in_course(course_code INT) RETURNS INT
+BEGIN
+    -- Declare a variable to store the total number of students
+    DECLARE total_students INT;
+
+    -- Count the number of students enrolled in the course
+    SELECT COUNT(*) INTO total_students
+    FROM ENROLLMENT
+    WHERE CRS_CODE = course_code; -- Filter by the provided course code
+
+    -- Return the total number of students enrolled in the course
+    RETURN total_students;
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the function
+DELIMITER $$
+
+-- Create a function named `check_material_permission`
+-- This function checks if a learning material has a specific access permission
+CREATE FUNCTION check_material_permission(material_id INT, permission NVARCHAR(50)) RETURNS BOOLEAN
+BEGIN
+    -- Declare a variable to store the permission check result
+    DECLARE has_permission BOOLEAN;
+
+    -- Check if the learning material has the specified permission
+    SELECT CASE 
+        WHEN ACCESS_PERMISSION = permission THEN TRUE -- Return TRUE if permissions match
+        ELSE FALSE -- Return FALSE if permissions do not match
+    END INTO has_permission
+    FROM LEARNING_MATERIAL
+    WHERE MATER_ID = material_id; -- Filter by the provided material ID
+
+    -- Return the result of the permission check
+    RETURN has_permission;
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the function
+DELIMITER $$
+
+-- Create a function named `days_to_deadline`
+-- This function calculates the number of days remaining until the deadline of an assignment
+CREATE FUNCTION days_to_deadline(assign_id INT) RETURNS INT
+BEGIN
+    -- Declare a variable to store the number of days left
+    DECLARE days_left INT;
+
+    -- Calculate the number of days between the assignment due date and the current date
+    SELECT DATEDIFF(ASSIGN_DUE_DATE, CURDATE()) INTO days_left
+    FROM ASSIGNMENT
+    WHERE ASSIGN_ID = assign_id -- Filter by the provided assignment ID
+    LIMIT 1; -- Ensure only one row is returned
+
+    -- Return the number of days left, or 0 if no assignment is found (to handle NULL cases)
+    RETURN IFNULL(days_left, 0);
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the procedure
+DELIMITER $$
+
+-- Create a stored procedure named `enroll_student`
+-- This procedure enrolls a student into a course with the provided details
+CREATE PROCEDURE enroll_student(
+    IN student_id INT,                -- Input parameter: Student ID
+    IN course_code INT,               -- Input parameter: Course code
+    IN completion_state NVARCHAR(50), -- Input parameter: Completion state (e.g., 'In Progress')
+    IN grade NVARCHAR(2),             -- Input parameter: Grade (e.g., 'A', 'B', 'C')
+    IN payment NVARCHAR(50)           -- Input parameter: Payment status (e.g., 'Paid', 'Pending')
+)
+BEGIN
+    -- Insert a new record into the ENROLLMENT table
+    INSERT INTO ENROLLMENT (STUDENT_ID, CRS_CODE, ENROL_DATE, COMPLETION_STATE, GRADE, PAYMENT)
+    VALUES (student_id, course_code, CURDATE(), completion_state, grade, payment);
+    -- CURDATE() automatically sets the enrollment date to the current date
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the procedure
+DELIMITER $$
+
+-- Create a stored procedure named `submit_assignment`
+-- This procedure allows a student to submit an assignment, ensuring no duplicate submissions
+CREATE PROCEDURE submit_assignment(
+    IN student_id INT,      -- Input parameter: Student ID
+    IN assign_id INT,       -- Input parameter: Assignment ID
+    IN subm_date DATE,      -- Input parameter: Submission date
+    IN grade NVARCHAR(2)    -- Input parameter: Grade for the submission
+)
+BEGIN
+    -- Declare a variable to store the count of existing submissions for the student and assignment
+    DECLARE submission_count INT;
+
+    -- Check if the student has already submitted THIS assignment
+    SELECT COUNT(*) INTO submission_count
+    FROM SUBMISSION
+    WHERE STUDENT_ID = student_id AND ASSIGNMENT_ID = assign_id;
+
+    -- If the student has NOT submitted the assignment, insert the new submission
+    IF submission_count = 0 THEN
+        INSERT INTO SUBMISSION (STUDENT_ID, ASSIGNMENT_ID, SUBM_DATE, SUBM_GRADE)
+        VALUES (student_id, assign_id, subm_date, grade);
+    ELSE
+        -- If the student has already submitted the assignment, raise an error
+        SIGNAL SQLSTATE '45000' -- SQLSTATE for a custom error
+        SET MESSAGE_TEXT = 'Student has already submitted this assignment.'; -- Error message
+    END IF;
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the procedure
+DELIMITER $$
+
+-- Create a stored procedure named `update_course_fees`
+-- This procedure updates the fees for a specific course
+CREATE PROCEDURE update_course_fees(
+    IN course_code INT,  -- Input parameter: Course code to update
+    IN new_fees FLOAT    -- Input parameter: New fees to set for the course
+)
+BEGIN
+    -- Update the fees for the specified course
+    UPDATE COURSE
+    SET CRS_FEES = new_fees
+    WHERE CRS_CODE = course_code; -- Filter by the provided course code
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+-- Change the delimiter to $$ to allow the creation of the procedure
+DELIMITER $$
+
+-- Create a stored procedure named `update_course_fees`
+-- This procedure updates the fees for a specific course
+CREATE PROCEDURE update_course_fees(
+    IN course_code INT,  -- Input parameter: Course code to update
+    IN new_fees FLOAT    -- Input parameter: New fees to set for the course
+)
+BEGIN
+    -- Update the fees for the specified course
+    UPDATE COURSE
+    SET CRS_FEES = new_fees
+    WHERE CRS_CODE = course_code; -- Filter by the provided course code
+END$$
+
+-- Reset the delimiter back to the default semicolon
+DELIMITER ;
+
+
+
+
+
